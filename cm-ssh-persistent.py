@@ -37,13 +37,15 @@ class PersistentSSHSession:
             '-M',   # Master mode
             '-S', self.control_path,  # Control socket path
             '-o', 'ControlPersist=10m',  # 保持连接 10 分钟
+            '-o', 'ServerAliveInterval=60',  # 每 60 秒发送心跳
+            '-o', 'ServerAliveCountMax=3',   # 最多 3 次失败
             '-p', str(self.port),
             f'{self.user}@{self.host}'
         ]
         
         try:
             subprocess.run(master_cmd, check=True, timeout=10)
-            print(f"✅ SSH ControlMaster established")
+            print(f"✅ SSH ControlMaster established (with keep-alive)")
             time.sleep(0.5)  # 等待连接稳定
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to establish ControlMaster: {e}")

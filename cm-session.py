@@ -266,11 +266,13 @@ class SessionManager:
                     'ssh', '-fN', '-M',
                     '-S', control_path,
                     '-o', 'ControlPersist=10m',
+                    '-o', 'ServerAliveInterval=60',
+                    '-o', 'ServerAliveCountMax=3',
                     '-p', str(port),
                     f'{user}@{host}'
                 ]
                 subprocess.run(master_cmd, check=True, timeout=10)
-                print(f"   ✅ Master connection established")
+                print(f"   ✅ Master connection established (with keep-alive)")
                 time.sleep(0.5)
             else:
                 print(f"   ✅ Using existing master connection")
