@@ -23,6 +23,14 @@ ContextManager = cm_context.ContextManager
 Context = cm_context.Context
 
 
+def load_module(name, path):
+    """动态加载模块"""
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def cmd_ctx_add(args):
     """添加 context"""
     mgr = ContextManager()
@@ -387,6 +395,11 @@ Examples:
     start_parser.add_argument('task', help='Task description')
     start_parser.add_argument('--ctx', help='Context name or ID')
     start_parser.set_defaults(func=cmd_start)
+    
+    # status 命令
+    status_parser = subparsers.add_parser('status', help='Show status')
+    status_parser.add_argument('session_id', nargs='?', help='Session ID')
+    status_parser.set_defaults(func=cmd_status)
     
     # logs 命令
     logs_parser = subparsers.add_parser('logs', help='View session logs')

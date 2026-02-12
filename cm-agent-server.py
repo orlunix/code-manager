@@ -94,6 +94,12 @@ class CMAgentServer:
             auth_msg = await asyncio.wait_for(websocket.recv(), timeout=10.0)
             auth_data = json.loads(auth_msg)
             
+            # Debug logging
+            print(f"🔍 Auth received: {auth_data}")
+            print(f"🔍 Client token: {auth_data.get('auth_token')}")
+            print(f"🔍 Server token: {self.auth_token}")
+            print(f"🔍 Match: {auth_data.get('auth_token') == self.auth_token}")
+            
             if auth_data.get('auth_token') != self.auth_token:
                 await websocket.send(json.dumps({
                     'error': 'Unauthorized',
@@ -206,8 +212,9 @@ class CMAgentServer:
                 print(f"   Sending task: {task[:50]}...")
                 tmux_session.send_keys(task)
             
-            # Start monitoring
-            tmux_session.monitor_task = asyncio.create_task(
+            # Start monitoring (Python 3.6 compatibility)
+            loop = asyncio.get_event_loop()
+            tmux_session.monitor_task = loop.create_task(
                 self.monitor_session(session_id)
             )
             
@@ -465,7 +472,9 @@ def main():
     )
     
     try:
-        asyncio.run(server.start())
+        # Python 3.6 compatibility: asyncio.run() not available
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(server.start())
     except KeyboardInterrupt:
         print("\n\n👋 Shutting down...")
         sys.exit(0)
